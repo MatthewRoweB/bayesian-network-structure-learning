@@ -6,11 +6,8 @@ from typing import DefaultDict, Iterable, Generator
 import logging
 import random
 
-# ────────────────────────────────────────────────────────────────────────────
-#  logger setup  (only once per interpreter)
-# ────────────────────────────────────────────────────────────────────────────
 logger = logging.getLogger(__name__)
-logger.propagate = False          # keep messages in this namespace
+logger.propagate = False          
 
 logging.basicConfig(filename='drafting_run.log', level=logging.INFO, filemode='w')
 
@@ -116,9 +113,6 @@ def drafting(
 
     return tree, remaining
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 1)  CONDITIONAL MUTUAL INFORMATION  (discrete, no NumPy)
-# ─────────────────────────────────────────────────────────────────────────────
 def conditional_mi(
     df: pd.DataFrame, x: str, y: str, Z: list[str]) -> float:
     """
@@ -135,10 +129,6 @@ def conditional_mi(
         cmi   += weight * mutual_info_score(sub[x], sub[y])
     return cmi
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 2)  ALL NON-EMPTY SUBSETS  (generator, O(|U|) mem)
-# ─────────────────────────────────────────────────────────────────────────────
 def subsets_nonempty(U: Iterable) -> Generator[tuple, None, None]:
     """
     Yield all non-empty subsets of U in size order.
@@ -161,9 +151,6 @@ def has_independent_subset(
         for Z in subsets_nonempty(U)
     )
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 3)  TARJAN  –  blocks & articulation points
-# ─────────────────────────────────────────────────────────────────────────────
 def tarjan_bcc(adj: dict[str, set[str]]
                ) -> tuple[list[set[str]], set[str]]:
     disc, low, time = {}, {}, [0]
@@ -206,9 +193,6 @@ def tarjan_bcc(adj: dict[str, set[str]]
 
     return blocks, cuts
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 4)  BETWEEN_VERTICES  via Block–Cut Tree path
-# ─────────────────────────────────────────────────────────────────────────────
 def between_vertices(
     adj: dict[str, set[str]], src: str, dst: str
 ) -> set[str]:
@@ -281,9 +265,6 @@ def between_vertices(
     U.discard(dst)
     return U
 
-# ───────────────────────────────────────────────────────────────────────────
-# 5)  THICKENING  (Phase-2)  – greedy add, stores SepSets
-# ───────────────────────────────────────────────────────────────────────────
 def thickening(
     data: pd.DataFrame,
     tree: list[tuple[str, str, float]],
@@ -341,10 +322,6 @@ def thickening(
     }
     return final_edges, sepsets
 
-
-# ───────────────────────────────────────────────────────────────────────────
-# 6)  THINNING  (Phase-3)  – single pass prune, extends SepSets
-# ───────────────────────────────────────────────────────────────────────────
 def thinning(
     data: pd.DataFrame,
     final_edges: set[frozenset[str]],
@@ -543,7 +520,7 @@ def TPDA_Algorithm(data: pd.DataFrame, *,
         verbose=True
     )
 
-    # Phase-4  (orient_edges already defined earlier)
+    # Phase-4 
     cpdag = orient_edges(
         skeleton=edges3,
         sepsets=seps,
