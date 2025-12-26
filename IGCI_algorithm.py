@@ -94,11 +94,9 @@ def information_geometric_causal_inference(data: pd.DataFrame,
         neg_idx, = np.where(diff < 0)               # Xj -> Xi winners
     
         # 4) Coefficients per sign (use cx for positives, cy for negatives)
-        #    (You asked to avoid diff for weights)
         edges_pos = ((f"x{i+1}", f"x{j+1}", float(w)) for j, w in zip(pos_idx, cx[pos_idx]))
         edges_neg = ((f"x{j+1}", f"x{i+1}", float(w)) for j, w in zip(neg_idx, cy[neg_idx]))
-    
-        # 5) Append lazily (no inner j-loop)
+  
         edge_list.extend(edges_pos)
         edge_list.extend(edges_neg)
 
